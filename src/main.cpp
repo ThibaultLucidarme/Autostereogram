@@ -13,6 +13,20 @@ int main( int argc, char** argv)
 	string initialDensity = parser.addOption<string>("-o","", "output stereogram file");
 	parser.addHelpOption();
 
+
+
+	cv::Mat heightMap;
+
+	for( y = 0; y < heightMap.rows; ++y)
+    {
+
+		auto rowPtr = heightmap.ptr<auto>(y);
+    	ProcessRow( heightMap.row(y) )
+
+    }
+
+
+
 }
 	
 

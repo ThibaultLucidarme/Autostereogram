@@ -24,7 +24,7 @@ cc  -DSINGLETHREADED <other flags go here> code.c
 
 // TILING in OpenCV
 // http://funwithkinect.blogspot.com.br/2012/02/copying-and-tiling-with-opencv.html
-//http://docs.opencv.org/3.0-rc1/d2/de8/group__core__array.html#ga496c3860f3ac44c40b48811333cfda2d
+// http://docs.opencv.org/3.0-rc1/d2/de8/group__core__array.html#ga496c3860f3ac44c40b48811333cfda2d
 
 /*
 
@@ -38,7 +38,7 @@ featureZ     \/
 
 
 eyesep = eyeSeparation // separation between the eyes
-sep = eyeSeparationOnScreen // projection of the eye separation on the screen when looking at an object
+sep = stereoSeparation // projection of the eye separation on the screen when looking at an object
 obsdist = eye2screenDist // distance from observer to the screen
 featureZ = objectDepth // depths of the object heightmap
 
