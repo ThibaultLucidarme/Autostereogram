@@ -53,7 +53,7 @@ namespace p
 	public:
 		CommandLineParser(int argc, char** argv)
 		{
-			int numArg = argc;
+			// int numArg = argc;
 			std::vector<std::string> argList;
 
 			_displayHelp = false;

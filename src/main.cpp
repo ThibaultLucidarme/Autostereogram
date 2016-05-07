@@ -1,5 +1,9 @@
 #include "CommandLineParser.hpp"
-#include "ProgressBar.hpp"
+// #include "ProgressBar.hpp"
+
+#include "main.hpp"
+#include <opencv2/opencv.hpp>
+#include <opencv2/core.hpp>
 
 using namespace std;
 
@@ -9,23 +13,17 @@ int main( int argc, char** argv)
 	// Parse commandline for parameters
 	p::CommandLineParser parser(argc, argv);
 	int size = parser.addOption<int>("-n", 250, "Size of simulation domain");
-	string initialDensity = parser.addOption<string>("-i","", "input height map");
-	string initialDensity = parser.addOption<string>("-o","", "output stereogram file");
-	parser.addHelpOption();
+	string heightmapName = parser.addOption<string>("-i","", "input height map");
+	string outputFilename = parser.addOption<string>("-o","", "output stereogram file");
+	parser.CompileHelpFromOptions();
+
+	cv::Mat heightMap = cv::imread( heightmapName, cv::IMREAD_GRAYSCALE  );
+	// cv::Mat output = cv::create( outputFilename.size(), CV_8UC3 );
+
+	StereogramGenerator sg(heightMap, cv::Size(size,size));
 
 
-
-	cv::Mat heightMap;
-
-	for( y = 0; y < heightMap.rows; ++y)
-    {
-
-		auto rowPtr = heightmap.ptr<auto>(y);
-    	ProcessRow( heightMap.row(y) )
-
-    }
-
-
+    return EXIT_SUCCESS;
 
 }
 	
