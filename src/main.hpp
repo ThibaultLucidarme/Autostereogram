@@ -1,7 +1,7 @@
 #ifndef __MAIN_HPP__
 #define __MAIN_HPP__
 
-
+#include <exception>
 #include <opencv2/opencv.hpp>
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
@@ -16,7 +16,7 @@ private:
 
 
 	int* _linksR2L;	// list of links
-	cv::Scalar* _colorRow; // associated color
+	cv::Vec3b* _colorRow; // associated color
 
 	int _eyeSeparation; // separation between the eyes (cm)
 	int _eye2screenDist; // distance from observer to the screen (cm)
@@ -28,7 +28,7 @@ private:
 		return heightmap;
 	}
 
-	inline int getStereoSeparation ( char objectDepth )
+	inline int getStereoSeparation ( unsigned char objectDepth )
 	{ 
 		// eyeSeparation : separation between the eyes
 		// stereoSeparation : projection of the eye separation on the screen when looking at an object
@@ -52,13 +52,13 @@ private:
 	
 	}
 
-	inline virtual cv::Scalar ColorLink ( int x, cv::RNG* rng )
+	inline virtual cv::Vec3b ColorLink ( int x, cv::RNG* rng )
 	{
-		cv::Scalar color;
+		cv::Vec3b color;
 		// give random color to left links and unlinked and matching color to right link
    		if ( _linksR2L[ x ] == x )
    		{
-   			color = cv::Scalar( rng->uniform(0, 255), rng->uniform(0, 255), rng->uniform(0, 255) );
+   			color = cv::Vec3b( rng->uniform(0, 255), rng->uniform(0, 255), rng->uniform(0, 255) );
    			_colorRow[ x ] = color;
    		}
  		else // _linksR2L[ x ] < x; _linksL2R[ x ] > x
@@ -75,7 +75,8 @@ private:
 		int x;
 		int width = _output.size().width;
 
-		cv::Mat row ( iRow.size(), CV_8UC3 );
+		// std::cout << iRow.size() << std::endl;
+		cv::Mat row = cv::Mat(iRow.size(), CV_8UC3, cv::Scalar(0,0,0) );
 
 		// init links;
 		for ( x=0; x<width; x++ )
@@ -84,14 +85,17 @@ private:
 		// evaluate links
 		for ( x=0; x<width; x++ )
 		{
-			char objectDepth = iRow.at<char>( x );
+			unsigned char objectDepth = iRow.at<char>( x );
 			Link( x, getStereoSeparation(objectDepth) );
 		}
 
 		// Assign color to row
 		for ( x=0; x<width; x++ )
 		{
-			row.at<cv::Scalar>( x ) = ColorLink( x, colormap );
+			cv::Vec3b color = ColorLink( x, colormap );
+			row.data[row.channels()*(row.cols*0 + x) + 0] = color[0]; 
+			row.data[row.channels()*(row.cols*0 + x) + 1] = color[1]; 
+			row.data[row.channels()*(row.cols*0 + x) + 2] = color[2]; 
 		}
 
 		return row;
@@ -115,7 +119,7 @@ public:
 		_yppcm = 28;
 
 		_linksR2L = new int[ outputSize.width ];
-		_colorRow = new cv::Scalar[ outputSize.width ];
+		_colorRow = new cv::Vec3b[ outputSize.width ];
 	}
 
 	~StereogramGenerator()
@@ -133,12 +137,12 @@ public:
 	{
 		_heightmap = NormalizeDepth( _heightmap );
 		cv::RNG* colormap = new cv::RNG();
+		double min, max;
 
-		// cv::CV_Assert( _output.size() == _heightmap.size() );
+		CV_Assert( _output.size() == _heightmap.size() );
 
 		for( int y = 0; y < _heightmap.rows; y++ )
-			ProcessRow( _heightmap.row(y), colormap ).copyTo( _output.row(y) );
-
+			ProcessRow( _heightmap.row(y), colormap ).copyTo(_output.row(y));
 
 	    delete colormap;
 
@@ -152,23 +156,10 @@ public:
 		cv::resize( _heightmap, _heightmap, _output.size(), 1, 1);
 
 		_linksR2L = new int[ _output.size().width ];
-		_colorRow = new cv::Scalar[ _output.size().height ];
+		_colorRow = new cv::Vec3b[ _output.size().height ];
 	}
 
 
-
-};
-
-
-class StereogramGeneratorWithHiddenLinks : public StereogramGenerator
-{
-
-private:
-
-	void RemoveHiddenLinks ( void )
-	{
-
-	}
 
 };
 
