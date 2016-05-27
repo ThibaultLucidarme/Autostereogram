@@ -29,13 +29,13 @@ StereogramGenerator::~StereogramGenerator()
 
 double StereogramGenerator::NormalizeDepth( void )
 {
-	double mindepth,maxdepth;
-	cv::minMaxLoc(_heightmap, &maxdepth, &mindepth);
-	cv::normalize( _heightmap,_heightmap,mindepth,maxdepth);
-	// _heightmap = maxdepth - _heightmap*(maxdepth-mindepth)/256;
+	cv::Mat __heightmap;
+	double mindepth=0,maxdepth=5; // maxdepth=5 ; >5 is visible to naked eye
+	double min, max;
+	cv::minMaxLoc(_heightmap, &min, &max);
+	_heightmap = (_heightmap-min)/(max-min)*(maxdepth-mindepth)+mindepth;
 
 	return maxdepth;
-
 }
 
 int StereogramGenerator::getStereoSeparation ( unsigned char objectDepth )
@@ -72,12 +72,13 @@ cv::Vec3b StereogramGenerator::ColorLink ( int x, cv::RNG* rng )
 	else // _linksR2L[ x ] < x; _linksL2R[ x ] > x
 		color = _colorRow[ _linksR2L[x] ];
 	
-	_colorRow[ x ] = color;
-	
 	return color;
 }
 
-
+void StereogramGenerator::Init( int x )
+{
+	_linksR2L[x]=x;
+}
 
 
 cv::Mat StereogramGenerator::ProcessRow ( cv::Mat iRow, cv::RNG* colormap )
@@ -90,7 +91,7 @@ cv::Mat StereogramGenerator::ProcessRow ( cv::Mat iRow, cv::RNG* colormap )
 
 	// init links;
 	for ( x=0; x<width; x++ )
-		_linksR2L[x]=x;
+		Init(x);
 
 	// evaluate links
 	for ( x=0; x<width; x++ )
@@ -102,7 +103,7 @@ cv::Mat StereogramGenerator::ProcessRow ( cv::Mat iRow, cv::RNG* colormap )
 
 	// Assign color to row
 	for ( x=0; x<width; x++ )
-		ColorLink( x, colormap );
+		_colorRow[x] = ColorLink( x, colormap );
 	
 	for ( x=0; x<width; x++ )
 	{	
@@ -135,13 +136,3 @@ cv::Mat StereogramGenerator::Generate ( void )
     return _output;
 
 }
-
-void StereogramGenerator::UseTile ( cv::Mat tile, int repeatX, int repeatY )
-{
-	cv::repeat( tile, repeatX, repeatY, _output );
-	cv::resize( _heightmap, _heightmap, _output.size(), 1, 1);
-
-	_linksR2L = new int[ _output.size().width ];
-	_colorRow = new cv::Vec3b[ _output.size().height ];
-}
-

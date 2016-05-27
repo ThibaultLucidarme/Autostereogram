@@ -2,7 +2,8 @@
 // #include "ProgressBar.hpp"
 
 #include "StereogramGenerator.hpp"
-#include "StereogramGeneratorWithTiles.hpp"
+// #include "StereogramGeneratorWithTiles.hpp"
+// #include "StereogramGeneratorWithOcclusion.hpp"
 #include <opencv2/opencv.hpp>
 #include <opencv2/core.hpp>
 
@@ -18,11 +19,9 @@ int main( int argc, char** argv)
 	string outputFilename = parser.addOption<string>("-o","", "output stereogram file");
 	string tileName = parser.addOption<string>("-t","../data/tile1.jpg", "tile name");
 	parser.CompileHelpFromOptions();
-	// tileName = "";
 
 	cv::Mat output;
 	cv::Mat heightMap = cv::imread( heightmapName, cv::IMREAD_GRAYSCALE  );
-	// cv::Mat output = cv::create( outputFilename.size(), CV_8UC3 );
 
 	if ( tileName == "")
 	{
